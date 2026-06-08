@@ -1,2 +1,113 @@
-# Portaria-Saas
-Sistema SaaS de gestão de portaria para condomínios com arquitetura multi-tenant, controle de usuários por perfil e registro de acessos.
+# 🏢 Portaria Pro — Sistema de Controle de Acesso para Condomínios
+
+Sistema completo de portaria como SaaS (Software as a Service), desenvolvido para gerenciar o controle de acesso de condomínios com múltiplos perfis de usuário, controle de veículos, QR Code para visitantes e muito mais.
+
+---
+
+## 🚀 Demonstração
+
+- **Frontend:** [https://portaria-frontend.onrender.com](https://portaria-frontend.onrender.com)
+- **API:** [https://portaria-api-0kw1.onrender.com/docs](https://portaria-api-0kw1.onrender.com/docs)
+
+---
+
+## ✅ Funcionalidades
+
+- **Multi-tenant** — cada condomínio tem seus dados isolados
+- **Perfis de acesso** — Superadmin, Síndico, Admin e Porteiro
+- **Cadastro de pessoas** — moradores, visitantes, prestadores e entregadores
+- **Controle de entrada e saída** com confirmação visual e foto
+- **Controle de veículos** — entrada, saída e histórico por placa
+- **QR Code para visitantes** — pré-autorização com validade configurável
+- **Dashboard em tempo real** — pessoas e veículos dentro, movimentações do dia
+- **Relatórios** — exportação em CSV e PDF
+- **Backup automático** do banco de dados
+- **Busca por nome** com sugestões em tempo real
+- **Fotos** no cadastro de pessoas
+- **Log de ações** administrativas completo
+
+---
+
+## 🛠️ Tecnologias
+
+**Backend**
+- Python 3.11+
+- FastAPI
+- SQLite
+- Pydantic
+- Uvicorn
+
+**Frontend**
+- HTML5, CSS3, JavaScript puro
+- Sem frameworks — leve e rápido
+
+---
+
+## 📁 Estrutura do projeto
+
+```
+Portaria-Saas/
+├── backend/
+│   ├── api.py          # Endpoints da API REST
+│   ├── database.py     # Banco de dados SQLite
+│   ├── services.py     # Regras de negócio
+│   ├── models.py       # Modelos Pydantic
+│   ├── main.py         # Interface CLI (terminal)
+│   └── requirements.txt
+└── frontend/
+    ├── index.html      # Tela de login
+    ├── register.html   # Cadastro de condomínio
+    ├── painel.html     # Painel principal
+    ├── superadmin.html # Painel master
+    ├── config.js       # URL da API
+    ├── auth.js         # Helpers de autenticação
+    ├── painel.js       # Lógica do painel
+    ├── superadmin.js   # Lógica do superadmin
+    └── style.css       # Estilos
+```
+
+---
+
+## ⚙️ Como rodar localmente
+
+### Pré-requisitos
+- Python 3.11+
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn api:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend
+```bash
+cd frontend
+python -m http.server 80
+```
+
+### Acesso
+```
+http://localhost
+```
+
+**Login inicial:**
+- Usuário: `admin`
+- Senha: `admin123`
+
+> ⚠️ Troque a senha após o primeiro login!
+
+---
+
+## 👥 Perfis de acesso
+
+| Perfil | O que pode fazer |
+|---|---|
+| **Superadmin** | Gerencia todos os condomínios, usuários e logs |
+| **Síndico** | Gerencia o próprio condomínio, equipe e configurações |
+| **Admin** | Cadastra, edita e remove pessoas e veículos |
+| **Porteiro** | Registra entrada e saída de pessoas e veículos |
+
+---
+
+Desenvolvido com 💙
