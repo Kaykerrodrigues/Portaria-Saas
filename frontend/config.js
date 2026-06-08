@@ -1,2 +1,2 @@
 // Altere este IP se mudar de rede
-const API = "http://192.168.0.7:8000";
+const API = "https://portaria-api-0kw1.onrender.com";
