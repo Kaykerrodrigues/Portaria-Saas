@@ -1,17 +1,10 @@
-# 🏢 Portaria Pro — Sistema de Controle de Acesso para Condomínios
+Portaria Pro — Sistema de Controle de Acesso para Condomínios
 
 Sistema completo de portaria como SaaS (Software as a Service), desenvolvido para gerenciar o controle de acesso de condomínios com múltiplos perfis de usuário, controle de veículos, QR Code para visitantes e muito mais.
 
 ---
 
-## 🚀 Demonstração
-
-- **Frontend:** [https://portaria-frontend.onrender.com](https://portaria-frontend.onrender.com)
-- **API:** [https://portaria-api-0kw1.onrender.com/docs](https://portaria-api-0kw1.onrender.com/docs)
-
----
-
-## ✅ Funcionalidades
+Funcionalidades
 
 - **Multi-tenant** — cada condomínio tem seus dados isolados
 - **Perfis de acesso** — Superadmin, Síndico, Admin e Porteiro
@@ -28,7 +21,7 @@ Sistema completo de portaria como SaaS (Software as a Service), desenvolvido par
 
 ---
 
-## 🛠️ Tecnologias
+Tecnologias
 
 **Backend**
 - Python 3.11+
@@ -43,7 +36,7 @@ Sistema completo de portaria como SaaS (Software as a Service), desenvolvido par
 
 ---
 
-## 📁 Estrutura do projeto
+Estrutura do projeto
 
 ```
 Portaria-Saas/
@@ -66,48 +59,6 @@ Portaria-Saas/
     └── style.css       # Estilos
 ```
 
----
 
-## ⚙️ Como rodar localmente
-
-### Pré-requisitos
-- Python 3.11+
-
-### Backend
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn api:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Frontend
-```bash
-cd frontend
-python -m http.server 80
-```
-
-### Acesso
-```
-http://localhost
-```
-
-**Login inicial:**
-- Usuário: `admin`
-- Senha: `admin123`
-
-> ⚠️ Troque a senha após o primeiro login!
-
----
-
-## 👥 Perfis de acesso
-
-| Perfil | O que pode fazer |
-|---|---|
-| **Superadmin** | Gerencia todos os condomínios, usuários e logs |
-| **Síndico** | Gerencia o próprio condomínio, equipe e configurações |
-| **Admin** | Cadastra, edita e remove pessoas e veículos |
-| **Porteiro** | Registra entrada e saída de pessoas e veículos |
-
----
 
 Desenvolvido com 💙
