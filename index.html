@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Portaria Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="pagina-publica">
+
+<div class="login-center">
+    <div class="login-box">
+        <div class="pub-logo">🏢</div>
+        <h2>Portaria Pro</h2>
+        <p style="color:#888; font-size:13px; margin-bottom:20px">Faça login para continuar</p>
+
+        <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="login-usuario" placeholder="Seu usuário" autocomplete="username" />
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="login-senha" placeholder="Sua senha" autocomplete="current-password" />
+        </div>
+
+        <p id="login-erro" class="erro" style="min-height:18px; margin-bottom:8px"></p>
+
+        <button onclick="fazerLogin()" style="width:100%; padding:12px; font-size:15px">Entrar</button>
+
+        <p style="text-align:center; margin-top:16px; font-size:13px; color:#666">
+            Ainda não tem conta? <a href="register.html">Cadastrar condomínio</a>
+        </p>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+async function fazerLogin() {
+    const usuario = document.getElementById("login-usuario").value.trim();
+    const senha   = document.getElementById("login-senha").value.trim();
+    const erroEl  = document.getElementById("login-erro");
+    erroEl.textContent = "";
+
+    if (!usuario || !senha) { erroEl.textContent = "Preencha usuário e senha."; return; }
+
+    const res = await fetch(`${API}/login`, {
+        headers: { "Authorization": "Basic " + btoa(`${usuario}:${senha}`) }
+    });
+
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        erroEl.textContent = data.detail || "Usuário ou senha inválidos.";
+        return;
+    }
+
+    const data = await res.json();
+
+    // Salva sessão
+    sessionStorage.setItem("usuario",       data.usuario);
+    sessionStorage.setItem("senha",         senha);
+    sessionStorage.setItem("perfil",        data.perfil);
+    sessionStorage.setItem("condominio_id", data.condominio_id ?? "");
+    sessionStorage.setItem("condominio_nome", data.condominio?.nome ?? "");
+
+    // Redireciona por perfil
+    if (data.perfil === "superadmin") {
+        window.location.href = "superadmin.html";
+    } else {
+        window.location.href = "painel.html";
+    }
+}
+document.addEventListener("keydown", e => { if (e.key === "Enter") fazerLogin(); });
+</script>
+</body>
+</html>

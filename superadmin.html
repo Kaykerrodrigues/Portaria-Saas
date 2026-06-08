@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superadmin — Portaria Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topo">
+    <span>🏢 Portaria Pro <span style="font-size:12px; opacity:.7; font-weight:normal">— Painel Master</span></span>
+    <div class="topo-direita">
+        <span id="usuario-logado"></span>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+</header>
+
+<div class="container">
+    <div id="msg-global"></div>
+
+    <div class="abas">
+        <button class="aba ativa" onclick="mostrarAba('dashboard', this)">📊 Dashboard</button>
+        <button class="aba" onclick="mostrarAba('condominios', this)">🏢 Condomínios</button>
+        <button class="aba" onclick="mostrarAba('usuarios', this)">👥 Todos Usuários</button>
+        <button class="aba" onclick="mostrarAba('log', this)">📝 Log Geral</button>
+    </div>
+
+    <!-- DASHBOARD SUPER -->
+    <div id="aba-dashboard" class="aba-conteudo">
+        <h2>Visão Geral</h2>
+        <div class="cards-grid">
+            <div class="stat-card azul"><div class="stat-numero" id="stat-total-cond">—</div><div class="stat-label">Total de condomínios</div></div>
+            <div class="stat-card verde"><div class="stat-numero" id="stat-ativos">—</div><div class="stat-label">Condomínios ativos</div></div>
+            <div class="stat-card laranja"><div class="stat-numero" id="stat-inativos">—</div><div class="stat-label">Condomínios inativos</div></div>
+        </div>
+        <h3 style="margin:24px 0 12px">Condomínios cadastrados</h3>
+        <table>
+            <thead><tr><th>Nome</th><th>Slug</th><th>Pessoas</th><th>Usuários</th><th>Status</th><th>Criado em</th></tr></thead>
+            <tbody id="tabela-dash-cond"></tbody>
+        </table>
+    </div>
+
+    <!-- CONDOMÍNIOS -->
+    <div id="aba-condominios" class="aba-conteudo" style="display:none">
+        <h2>Gerenciar Condomínios</h2>
+        <table>
+            <thead><tr><th>Nome</th><th>Endereço</th><th>Pessoas</th><th>Usuários</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tabela-condominios"></tbody>
+        </table>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div id="aba-usuarios" class="aba-conteudo" style="display:none">
+        <h2>Todos os Usuários</h2>
+        <table>
+            <thead><tr><th>Usuário</th><th>Perfil</th><th>Condomínio</th><th>Status</th><th>Criado em</th></tr></thead>
+            <tbody id="tabela-todos-usuarios"></tbody>
+        </table>
+    </div>
+
+    <!-- LOG -->
+    <div id="aba-log" class="aba-conteudo" style="display:none">
+        <h2>Log Geral de Ações</h2>
+        <table>
+            <thead><tr><th>Horário</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr></thead>
+            <tbody id="tabela-log-geral"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL: EDITAR CONDOMÍNIO -->
+<div id="modal-cond" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3>Editar Condomínio</h3>
+        <input type="hidden" id="modal-cond-id" />
+        <div class="form-group"><label>Nome</label><input type="text" id="modal-cond-nome" /></div>
+        <div class="form-group"><label>Endereço</label><input type="text" id="modal-cond-endereco" /></div>
+        <div class="form-group">
+            <label>Status</label>
+            <select id="modal-cond-ativo"><option value="1">Ativo</option><option value="0">Inativo (bloqueia todos os logins)</option></select>
+        </div>
+        <div class="modal-btns">
+            <button onclick="salvarCondominio()">Salvar</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-cond')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="superadmin.js"></script>
+</body>
+</html>

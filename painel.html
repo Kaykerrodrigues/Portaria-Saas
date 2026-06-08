@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel — Portaria Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topo">
+    <span id="topo-nome">🏢 Portaria Pro</span>
+    <div class="topo-direita">
+        <span id="usuario-logado"></span>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+</header>
+
+<div class="container">
+    <div id="msg-global"></div>
+    <div class="abas" id="nav-abas">
+        <button class="aba ativa" onclick="mostrarAba('dashboard', this)">📊 Dashboard</button>
+        <button class="aba" onclick="mostrarAba('pessoas', this)">👥 Pessoas</button>
+        <button class="aba aba-admin-only" onclick="mostrarAba('cadastrar', this)">➕ Cadastrar</button>
+        <button class="aba" onclick="mostrarAba('movimentacao', this)">🚦 Entrada/Saída</button>
+        <button class="aba" onclick="mostrarAba('dentro', this)">🏠 Dentro</button>
+        <button class="aba" onclick="mostrarAba('veiculos', this)">🚗 Veículos</button>
+        <button class="aba" onclick="mostrarAba('qrcode', this)">📱 QR Code</button>
+        <button class="aba" onclick="mostrarAba('relatorio', this)">📋 Relatório</button>
+        <button class="aba aba-sindico-only" onclick="mostrarAba('equipe', this)">👮 Equipe</button>
+        <button class="aba aba-sindico-only" onclick="mostrarAba('configuracoes', this)">⚙️ Config.</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="aba-dashboard" class="aba-conteudo">
+        <h2 id="dash-titulo">Dashboard</h2>
+        <div class="cards-grid">
+            <div class="stat-card azul"><div class="stat-numero" id="stat-total">—</div><div class="stat-label">Total de pessoas</div></div>
+            <div class="stat-card verde"><div class="stat-numero" id="stat-dentro">—</div><div class="stat-label">Pessoas dentro</div></div>
+            <div class="stat-card roxo"><div class="stat-numero" id="stat-veiculos">—</div><div class="stat-label">Veículos dentro</div></div>
+            <div class="stat-card laranja"><div class="stat-numero" id="stat-entradas">—</div><div class="stat-label">Entradas hoje</div></div>
+        </div>
+        <h3 style="margin:24px 0 12px">Últimas movimentações</h3>
+        <table><thead><tr><th>Horário</th><th>Ação</th><th>Nome</th><th>Tipo</th><th>Porteiro</th></tr></thead>
+        <tbody id="tabela-ultimas"></tbody></table>
+    </div>
+
+    <!-- PESSOAS -->
+    <div id="aba-pessoas" class="aba-conteudo" style="display:none">
+        <h2>Lista de Pessoas</h2>
+        <div class="filtro-linha">
+            <input type="text" id="busca-nome" placeholder="Buscar por nome..." oninput="buscarPorNome()" />
+            <select id="filtro-tipo" onchange="aplicarFiltroTipo()">
+                <option value="">Todos os tipos</option>
+                <option value="morador">Morador</option>
+                <option value="visitante">Visitante</option>
+                <option value="prestador">Prestador</option>
+                <option value="entregador">Entregador</option>
+            </select>
+        </div>
+        <table>
+            <thead><tr><th>Foto</th><th>Nome</th><th>Documento</th><th>Tipo</th><th>Quadra/Lote</th><th>Status</th><th class="aba-admin-only">Ações</th></tr></thead>
+            <tbody id="tabela-pessoas"></tbody>
+        </table>
+        <div class="paginacao" id="paginacao-pessoas"></div>
+    </div>
+
+    <!-- CADASTRAR -->
+    <div id="aba-cadastrar" class="aba-conteudo" style="display:none">
+        <h2>Cadastrar Pessoa</h2>
+        <div class="form-cols">
+            <div>
+                <div class="form-group"><label>Nome completo *</label><input type="text" id="cad-nome" /></div>
+                <div class="form-group"><label>Documento *</label><input type="text" id="cad-documento" /></div>
+                <div class="form-group">
+                    <label>Tipo *</label>
+                    <select id="cad-tipo" onchange="toggleQuadraLote()">
+                        <option value="">Selecione...</option>
+                        <option value="morador">Morador</option>
+                        <option value="visitante">Visitante</option>
+                        <option value="prestador">Prestador</option>
+                        <option value="entregador">Entregador</option>
+                    </select>
+                </div>
+                <div id="campo-quadra-lote" style="display:none">
+                    <div class="form-group"><label>Quadra *</label><input type="text" id="cad-quadra" /></div>
+                    <div class="form-group"><label>Lote *</label><input type="text" id="cad-lote" /></div>
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Foto (opcional)</label>
+                    <div class="foto-preview" id="cad-foto-preview"><span>Sem foto</span></div>
+                    <input type="file" id="cad-foto-input" accept="image/*" onchange="previewFoto('cad')" style="margin-top:8px" />
+                </div>
+            </div>
+        </div>
+        <button onclick="cadastrar()">Cadastrar Pessoa</button>
+    </div>
+
+    <!-- MOVIMENTAÇÃO -->
+    <div id="aba-movimentacao" class="aba-conteudo" style="display:none">
+        <h2>Registrar Entrada / Saída</h2>
+        <div class="dois-cards">
+            <div class="card">
+                <h3>✅ Entrada</h3>
+                <div class="form-group">
+                    <label>Nome ou Documento</label>
+                    <input type="text" id="ent-busca" placeholder="Digite para buscar..." oninput="buscarParaMovimento('ent')" autocomplete="off" />
+                    <div class="sugestoes" id="ent-sugestoes"></div>
+                </div>
+                <div id="ent-pessoa-selecionada" class="pessoa-card" style="display:none"></div>
+                <input type="hidden" id="ent-documento" />
+                <div class="form-group"><label>Quadra destino (opcional)</label><input type="text" id="ent-quadra" /></div>
+                <div class="form-group"><label>Lote destino (opcional)</label><input type="text" id="ent-lote" /></div>
+                <button onclick="registrarEntrada()">Registrar Entrada</button>
+            </div>
+            <div class="card">
+                <h3>🚪 Saída</h3>
+                <div class="form-group">
+                    <label>Nome ou Documento</label>
+                    <input type="text" id="sai-busca" placeholder="Digite para buscar..." oninput="buscarParaMovimento('sai')" autocomplete="off" />
+                    <div class="sugestoes" id="sai-sugestoes"></div>
+                </div>
+                <div id="sai-pessoa-selecionada" class="pessoa-card" style="display:none"></div>
+                <input type="hidden" id="sai-documento" />
+                <button onclick="registrarSaida()">Registrar Saída</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DENTRO -->
+    <div id="aba-dentro" class="aba-conteudo" style="display:none">
+        <h2>Pessoas Dentro do Condomínio</h2>
+        <table>
+            <thead><tr><th>Foto</th><th>Nome</th><th>Documento</th><th>Tipo</th><th>Quadra/Lote</th><th>Ação</th></tr></thead>
+            <tbody id="tabela-dentro"></tbody>
+        </table>
+    </div>
+
+    <!-- VEÍCULOS -->
+    <div id="aba-veiculos" class="aba-conteudo" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+            <h2 style="margin:0">Controle de Veículos</h2>
+            <button class="aba-admin-only" onclick="abrirModalVeiculo()">+ Cadastrar Veículo</button>
+        </div>
+
+        <div class="admin-tabs" style="margin-bottom:16px">
+            <button class="admin-tab ativa" onclick="mostrarVeiculosTab('lista', this)">📋 Todos</button>
+            <button class="admin-tab" onclick="mostrarVeiculosTab('dentro', this)">🏠 Dentro agora</button>
+            <button class="admin-tab" onclick="mostrarVeiculosTab('movimento', this)">🚦 Entrada/Saída</button>
+            <button class="admin-tab" onclick="mostrarVeiculosTab('relatorio', this)">📊 Relatório</button>
+        </div>
+
+        <div id="veic-lista">
+            <table>
+                <thead><tr><th>Placa</th><th>Modelo</th><th>Cor</th><th>Empresa</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="tabela-veiculos"></tbody>
+            </table>
+        </div>
+
+        <div id="veic-dentro" style="display:none">
+            <table>
+                <thead><tr><th>Placa</th><th>Modelo</th><th>Cor</th><th>Empresa</th><th>Responsável</th><th>Ação</th></tr></thead>
+                <tbody id="tabela-veiculos-dentro"></tbody>
+            </table>
+        </div>
+
+        <div id="veic-movimento" style="display:none">
+            <div class="dois-cards">
+                <div class="card">
+                    <h3>✅ Entrada de Veículo</h3>
+                    <div class="form-group"><label>Placa</label><input type="text" id="veic-ent-placa" placeholder="Ex: ABC1234" /></div>
+                    <div class="form-group"><label>Destino (opcional)</label><input type="text" id="veic-ent-destino" placeholder="Ex: A|12" /></div>
+                    <button onclick="entradaVeiculo()">Registrar Entrada</button>
+                </div>
+                <div class="card">
+                    <h3>🚪 Saída de Veículo</h3>
+                    <div class="form-group"><label>Placa</label><input type="text" id="veic-sai-placa" placeholder="Ex: ABC1234" /></div>
+                    <button onclick="saidaVeiculo()">Registrar Saída</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="veic-relatorio" style="display:none">
+            <div class="filtro-linha">
+                <input type="date" id="veic-rel-data" />
+                <button onclick="buscarRelatorioVeiculos()">Buscar</button>
+                <button class="btn-exportar" onclick="exportarCSVVeiculos()">⬇ Exportar CSV</button>
+            </div>
+            <table>
+                <thead><tr><th>Horário</th><th>Ação</th><th>Placa</th><th>Modelo</th><th>Empresa</th><th>Porteiro</th><th>Destino</th></tr></thead>
+                <tbody id="tabela-veic-relatorio"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- QR CODE -->
+    <div id="aba-qrcode" class="aba-conteudo" style="display:none">
+        <div class="admin-tabs" style="margin-bottom:16px">
+            <button class="admin-tab ativa" onclick="mostrarQRTab('gerar', this)">➕ Gerar QR Code</button>
+            <button class="admin-tab" onclick="mostrarQRTab('validar', this)">✅ Validar QR Code</button>
+            <button class="admin-tab" onclick="mostrarQRTab('lista', this)">📋 Histórico</button>
+        </div>
+
+        <div id="qr-gerar">
+            <h2>Gerar QR Code para Visitante</h2>
+            <div class="form-cols">
+                <div>
+                    <div class="form-group"><label>Nome do visitante *</label><input type="text" id="qr-nome" /></div>
+                    <div class="form-group"><label>Documento (opcional)</label><input type="text" id="qr-documento" /></div>
+                    <div class="form-group"><label>Destino (opcional, ex: A|12)</label><input type="text" id="qr-destino" /></div>
+                    <div class="form-group">
+                        <label>Validade</label>
+                        <select id="qr-validade">
+                            <option value="4">4 horas</option>
+                            <option value="8">8 horas</option>
+                            <option value="24" selected>24 horas</option>
+                            <option value="48">48 horas</option>
+                            <option value="168">7 dias</option>
+                        </select>
+                    </div>
+                    <button onclick="gerarQRCode()">Gerar QR Code</button>
+                </div>
+                <div id="qr-resultado" style="display:none">
+                    <p style="font-size:13px;color:#555;margin-bottom:8px">QR Code gerado:</p>
+                    <div id="qr-imagem" style="background:#f5f5f5;padding:16px;border-radius:8px;text-align:center"></div>
+                    <p id="qr-token-texto" style="font-size:11px;color:#888;margin-top:8px;word-break:break-all"></p>
+                    <button onclick="copiarToken()" style="margin-top:8px;background:#27ae60">📋 Copiar link</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="qr-validar" style="display:none">
+            <h2>Validar QR Code</h2>
+            <div class="form-group" style="max-width:500px">
+                <label>Token do QR Code</label>
+                <input type="text" id="qr-validar-token" placeholder="Cole o token aqui..." />
+            </div>
+            <button onclick="validarQRCode()">Validar e Registrar Entrada</button>
+            <div id="qr-validar-resultado" style="margin-top:16px"></div>
+        </div>
+
+        <div id="qr-lista" style="display:none">
+            <h2>Histórico de QR Codes</h2>
+            <table>
+                <thead><tr><th>Visitante</th><th>Destino</th><th>Criado por</th><th>Expira em</th><th>Status</th></tr></thead>
+                <tbody id="tabela-qrcodes"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RELATÓRIO -->
+    <div id="aba-relatorio" class="aba-conteudo" style="display:none">
+        <h2>Relatório por Dia</h2>
+        <div class="filtro-linha">
+            <input type="date" id="rel-data" />
+            <button onclick="buscarRelatorio()">Buscar</button>
+            <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+            <button class="btn-exportar" onclick="exportarPDF()" style="background:#e74c3c">⬇ Exportar PDF</button>
+        </div>
+        <table>
+            <thead><tr><th>Horário</th><th>Ação</th><th>Nome</th><th>Documento</th><th>Tipo</th><th>Porteiro</th><th>Destino</th></tr></thead>
+            <tbody id="tabela-relatorio"></tbody>
+        </table>
+    </div>
+
+    <!-- EQUIPE -->
+    <div id="aba-equipe" class="aba-conteudo" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+            <h2 style="margin:0">Gerenciar Equipe</h2>
+            <button onclick="abrirModalNovoUsuario()">+ Novo membro</button>
+        </div>
+        <table>
+            <thead><tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tabela-usuarios"></tbody>
+        </table>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div id="aba-configuracoes" class="aba-conteudo" style="display:none">
+        <div class="admin-tabs" style="margin-bottom:20px">
+            <button class="admin-tab ativa" onclick="mostrarConfigTab('dados', this)">🏢 Dados</button>
+            <button class="admin-tab" onclick="mostrarConfigTab('senha', this)">🔒 Trocar Senha</button>
+            <button class="admin-tab" onclick="mostrarConfigTab('backup', this)">💾 Backup</button>
+            <button class="admin-tab" onclick="mostrarConfigTab('log', this)">📝 Log</button>
+        </div>
+
+        <div id="conf-dados">
+            <h3 style="margin-bottom:16px">Dados do Condomínio</h3>
+            <div class="form-group"><label>Nome</label><input type="text" id="conf-nome" disabled style="background:#f5f5f5" /></div>
+            <div class="form-group"><label>Endereço</label><input type="text" id="conf-endereco" disabled style="background:#f5f5f5" /></div>
+            <p style="font-size:13px;color:#888;margin-top:8px">Para alterar dados do condomínio, entre em contato com o suporte.</p>
+        </div>
+
+        <div id="conf-senha" style="display:none">
+            <h3 style="margin-bottom:16px">Trocar Senha</h3>
+            <div class="form-group" style="max-width:350px">
+                <label>Senha atual</label>
+                <input type="password" id="senha-atual" />
+            </div>
+            <div class="form-group" style="max-width:350px">
+                <label>Nova senha</label>
+                <input type="password" id="senha-nova" />
+            </div>
+            <div class="form-group" style="max-width:350px">
+                <label>Confirmar nova senha</label>
+                <input type="password" id="senha-confirma" />
+            </div>
+            <button onclick="trocarSenha()">Salvar nova senha</button>
+        </div>
+
+        <div id="conf-backup" style="display:none">
+            <h3 style="margin-bottom:16px">Backup do Banco de Dados</h3>
+            <p style="font-size:13px;color:#555;margin-bottom:16px">O backup salva uma cópia do banco de dados na pasta <strong>backend/backups/</strong>. Os últimos 7 backups são mantidos automaticamente.</p>
+            <button onclick="fazerBackup()" style="background:#27ae60">💾 Fazer Backup Agora</button>
+            <h4 style="margin:20px 0 12px">Backups disponíveis</h4>
+            <table>
+                <thead><tr><th>Arquivo</th><th>Tamanho</th></tr></thead>
+                <tbody id="tabela-backups"></tbody>
+            </table>
+        </div>
+
+        <div id="conf-log" style="display:none">
+            <h3 style="margin-bottom:16px">Log de Ações</h3>
+            <table>
+                <thead><tr><th>Horário</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr></thead>
+                <tbody id="tabela-log"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAIS -->
+<div id="modal-editar" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3>Editar Pessoa</h3>
+        <input type="hidden" id="edit-documento-original" />
+        <div class="form-cols">
+            <div>
+                <div class="form-group"><label>Nome</label><input type="text" id="edit-nome" /></div>
+                <div class="form-group"><label>Tipo</label>
+                    <select id="edit-tipo">
+                        <option value="morador">Morador</option><option value="visitante">Visitante</option>
+                        <option value="prestador">Prestador</option><option value="entregador">Entregador</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Quadra|Lote (ex: A|12)</label><input type="text" id="edit-quadra-lote" /></div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Foto</label>
+                    <div class="foto-preview" id="edit-foto-preview"><span>Sem foto</span></div>
+                    <input type="file" id="edit-foto-input" accept="image/*" onchange="previewFoto('edit')" style="margin-top:8px" />
+                    <button onclick="removerFotoEdicao()" style="margin-top:6px;background:#888;padding:5px 10px;font-size:12px">Remover foto</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-btns">
+            <button onclick="salvarEdicao()">Salvar</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-editar')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-confirmar-entrada" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3>Confirmar Entrada</h3>
+        <div id="confirmar-entrada-info" class="pessoa-card-grande"></div>
+        <div class="modal-btns">
+            <button onclick="confirmarEntrada()">✅ Confirmar Entrada</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-confirmar-entrada')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-confirmar-saida" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3>Confirmar Saída</h3>
+        <div id="confirmar-saida-info" class="pessoa-card-grande"></div>
+        <div class="modal-btns">
+            <button onclick="confirmarSaida()">🚪 Confirmar Saída</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-confirmar-saida')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-usuario" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3 id="modal-usuario-titulo">Novo membro</h3>
+        <input type="hidden" id="modal-usuario-original" />
+        <div class="form-group"><label>Usuário</label><input type="text" id="modal-usuario-nome" /></div>
+        <div class="form-group"><label id="modal-senha-label">Senha</label><input type="password" id="modal-usuario-senha" /></div>
+        <div class="form-group"><label>Perfil</label>
+            <select id="modal-usuario-perfil">
+                <option value="porteiro">Porteiro</option>
+                <option value="admin">Admin</option>
+                <option value="sindico">Síndico</option>
+            </select>
+        </div>
+        <div class="form-group" id="modal-ativo-grupo" style="display:none">
+            <label>Status</label>
+            <select id="modal-usuario-ativo"><option value="1">Ativo</option><option value="0">Desativado</option></select>
+        </div>
+        <div class="modal-btns">
+            <button onclick="salvarUsuario()">Salvar</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-usuario')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-veiculo" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3 id="modal-veiculo-titulo">Cadastrar Veículo</h3>
+        <input type="hidden" id="modal-veiculo-placa-original" />
+        <div class="form-group"><label>Placa *</label><input type="text" id="modal-veiculo-placa" placeholder="Ex: ABC1234" /></div>
+        <div class="form-group"><label>Modelo</label><input type="text" id="modal-veiculo-modelo" placeholder="Ex: Honda Civic" /></div>
+        <div class="form-group"><label>Cor</label><input type="text" id="modal-veiculo-cor" placeholder="Ex: Prata" /></div>
+        <div class="form-group"><label>Empresa</label><input type="text" id="modal-veiculo-empresa" placeholder="Ex: Transportadora ABC" /></div>
+        <div class="form-group"><label>Documento do responsável (opcional)</label><input type="text" id="modal-veiculo-responsavel" placeholder="CPF/RG do morador" /></div>
+        <div class="modal-btns">
+            <button onclick="salvarVeiculo()">Salvar</button>
+            <button class="btn-cancelar" onclick="fecharModal('modal-veiculo')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="painel.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Condomínio — Portaria Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="pagina-publica">
+
+<div class="pub-container">
+    <div class="pub-left">
+        <div class="pub-logo">🏢</div>
+        <h1>Portaria Pro</h1>
+        <p>Sistema completo de controle de acesso para condomínios.</p>
+        <ul class="pub-lista">
+            <li>✅ Controle de entrada e saída</li>
+            <li>✅ Cadastro de moradores e visitantes</li>
+            <li>✅ Relatórios e histórico completo</li>
+            <li>✅ Acesso de qualquer dispositivo</li>
+            <li>✅ Múltiplos porteiros</li>
+        </ul>
+    </div>
+    <div class="pub-right">
+        <div class="pub-card">
+            <h2>Cadastrar meu condomínio</h2>
+            <p class="pub-sub">Crie sua conta gratuita em segundos</p>
+
+            <div id="reg-erro" class="erro" style="margin-bottom:12px; min-height:18px"></div>
+            <div id="reg-ok" class="msg-ok" style="display:none; padding:12px; border-radius:6px; margin-bottom:12px"></div>
+
+            <div class="form-group">
+                <label>Nome do condomínio *</label>
+                <input type="text" id="reg-nome-cond" placeholder="Ex: Residencial Eldorado" />
+            </div>
+            <div class="form-group">
+                <label>Endereço (opcional)</label>
+                <input type="text" id="reg-endereco" placeholder="Ex: Rua das Flores, 100" />
+            </div>
+            <hr style="margin:16px 0; border-color:#eee">
+            <p style="font-size:13px; color:#555; margin-bottom:12px">Dados do síndico (administrador principal)</p>
+            <div class="form-group">
+                <label>Usuário *</label>
+                <input type="text" id="reg-usuario" placeholder="Ex: sindico_eldorado" />
+            </div>
+            <div class="form-group">
+                <label>Senha *</label>
+                <input type="password" id="reg-senha" placeholder="Mínimo 4 caracteres" />
+            </div>
+            <div class="form-group">
+                <label>Confirmar senha *</label>
+                <input type="password" id="reg-confirma" placeholder="Repita a senha" />
+            </div>
+            <button onclick="registrar()" style="width:100%;padding:12px;font-size:16px;margin-top:4px">
+                Criar conta grátis
+            </button>
+            <p style="text-align:center;margin-top:16px;font-size:13px;color:#666">
+                Já tem conta? <a href="index.html">Fazer login</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+async function registrar() {
+    const nome     = document.getElementById("reg-nome-cond").value.trim();
+    const endereco = document.getElementById("reg-endereco").value.trim() || null;
+    const usuario  = document.getElementById("reg-usuario").value.trim();
+    const senha    = document.getElementById("reg-senha").value.trim();
+    const confirma = document.getElementById("reg-confirma").value.trim();
+    const erroEl   = document.getElementById("reg-erro");
+    const okEl     = document.getElementById("reg-ok");
+
+    erroEl.textContent = "";
+    okEl.style.display = "none";
+
+    if (!nome || !usuario || !senha) { erroEl.textContent = "Preencha todos os campos obrigatórios."; return; }
+    if (senha !== confirma)          { erroEl.textContent = "As senhas não conferem."; return; }
+
+    const res = await fetch(`${API}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome_condominio: nome, endereco, usuario_sindico: usuario, senha_sindico: senha })
+    });
+    const data = await res.json();
+    if (res.ok) {
+        okEl.textContent = "✅ " + data.message + " Redirecionando...";
+        okEl.style.display = "block";
+        setTimeout(() => window.location.href = "index.html", 2500);
+    } else {
+        erroEl.textContent = data.detail || "Erro ao cadastrar.";
+    }
+}
+document.addEventListener("keydown", e => { if (e.key === "Enter") registrar(); });
+</script>
+</body>
+</html>
